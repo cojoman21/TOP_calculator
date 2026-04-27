@@ -1,0 +1,24 @@
+.calculator {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+button {
+  font-size: 20px;
+  min-width: 30px;
+}
+
+#digit {
+  color: #00f5e9;
+}
+
+#operator {
+  color: red;
+}
