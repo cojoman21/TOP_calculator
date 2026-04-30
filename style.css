@@ -1,4 +1,6 @@
 .calculator {
+  width: 50%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
 }
@@ -11,14 +13,37 @@
 }
 
 button {
-  font-size: 20px;
-  min-width: 30px;
+  width: 100%;
+  height: 55px;
+  font-weight: bold;
+  border: 1px solid #b8b8b8;
+  font-size: 1.5em;
+  margin-top: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+#display {
+  width: 250px;
+  height: 40px;
+  color: rgb(0, 183, 255);
+  text-align: right;
+  font-size: 1.5em;
 }
 
 #digit {
+  flex: 1;
   color: #00f5e9;
+  flex-shrink: 1;
 }
 
-#operator {
-  color: red;
+#operator,
+#result {
+  flex: 1;
+  color: #1eff00;
+}
+
+#clear {
+  flex: 1;
+  color: #ff0000;
 }
