@@ -39,26 +39,23 @@ function operate(operator, a, b) {
 
 const btnDigits = document.querySelectorAll("#digit");
 
-const waitingFirstNumber = () => {
-  if (result === "") return true;
-  return false;
-};
-
-const waitingSecondNumber = () => {
-  if (currentOperator !== "") return true;
-  return false;
-};
-
 btnDigits.forEach((btn) => {
   btn.addEventListener("click", (event) => {
-    if (waitingFirstNumber()) {
+    console.log(`Pressed digit ${event.target.innerText}`); // DEBUG
+    if (currentOperator.length === 0 && secondNumber.length === 0) {
       firstNumber += event.target.innerText;
+      console.log(`firstNumber is now ${firstNumber}`); // DEBUG
       document.getElementById("display").value = Math.abs(
         parseInt(firstNumber),
       );
-    } else if (waitingSecondNumber()) {
+      console.log(`Set input display to firstNumber: ${parseInt(firstNumber)}`);
+    } else if (firstNumber.length > 0 && currentOperator.length > 0) {
       secondNumber += event.target.innerText;
+      console.log(`secondNumber is now ${secondNumber}`); // DEBUG
       document.getElementById("display").value = secondNumber;
+      console.log(
+        `Set input display to secondNumber: ${parseInt(secondNumber)}`,
+      ); // DEBUG
     }
   });
 });
@@ -72,19 +69,46 @@ const btnOperators = document.querySelectorAll("#operator");
 
 btnOperators.forEach((btn) => {
   btn.addEventListener("click", (event) => {
-    if (firstNumber === "") {
+    console.log(`Pressed operator ${event.target.innerText}`); // DEBUG
+    if (
+      firstNumber.length === 0 &&
+      (event.target.innerText === "-" || event.target.innerText === "+")
+    ) {
       firstNumber = event.target.innerText;
-    } else if (firstNumber !== "" && currentOperator === "") {
+      console.log(`Set firstNumber to ${firstNumber}`); // DEBUG
+    } else if (
+      firstNumber.length > 0 &&
+      (firstNumber === "+" || firstNumber === "-") &&
+      (event.target.innerText === "-" || event.target.innerText === "+")
+    ) {
+      firstNumber = event.target.innerText;
+      console.log(`Change firstNumber to ${firstNumber}`); // DEBUG
+    } else if (firstNumber.length > 0 && secondNumber.length > 0) {
+      tempOperator = currentOperator;
+      console.log(`Stored currentOperator in tempOperator: ${tempOperator}`); // DEBUG
       currentOperator = event.target.innerText;
-    } else {
+      console.log(`currentOperator: ${currentOperator}`);
       a = parseInt(firstNumber);
       b = parseInt(secondNumber);
-      result = operate(currentOperator, a, b);
+      result = operate(tempOperator, a, b);
+      console.log(`Calculated result: ${result}`); //DEBUG
       document.getElementById("display").value = result;
+      console.log(`Set input display to result: ${result}`); // DEBUG
 
-      firstNumber = result;
+      firstNumber = result.toString();
+      console.log(`Set firstNumber = result = ${firstNumber}`); //DEBUG
       secondNumber = "";
-      currentOperator = "";
+      console.log(`Reset secondNumber: ${secondNumber}`); //DEBUG
+    } else if (
+      firstNumber.length > 0 &&
+      !firstNumber.startsWith("+") &&
+      !firstNumber.startsWith("-")
+    ) {
+      currentOperator = event.target.innerText;
+      console.log(`Set currentOperator to ${currentOperator}`); // DEBUG
+    } else {
+      currentOperator = event.target.innerText;
+      console.log(`Set currentOperator to ${currentOperator}`); // DEBUG
     }
   });
 });
