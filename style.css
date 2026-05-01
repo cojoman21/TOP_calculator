@@ -38,7 +38,7 @@ button {
 }
 
 #operator,
-#result {
+#equals {
   flex: 1;
   color: #1eff00;
 }

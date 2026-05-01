@@ -1,3 +1,8 @@
+let firstNumber = "";
+let secondNumber = "";
+let currentOperator = "";
+resetCalculator();
+
 function add(a, b) {
   return a + b;
 }
@@ -11,14 +16,9 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
-  return (a / b).toFixed(2);
+  return a / b;
   //   return a / b;
 }
-
-let firstNumber = "";
-let secondNumber = "";
-let currentOperator = "";
-let result = "";
 
 function operate(operator, a, b) {
   switch (operator) {
@@ -28,15 +28,34 @@ function operate(operator, a, b) {
       return subtract(a, b);
     case "*":
       return multiply(a, b);
-    case "/":
+    case "÷":
       return divide(a, b);
     default:
       return;
   }
 }
 
-// document.getElementById("display").value = "0";
+function display(value) {
+  value = parseFloat(value);
+  if (Math.abs(value) >= 1e12 || (Math.abs(value) < 1e-7 && value !== 0)) {
+    document.getElementById("display").value = parseFloat(
+      value.toPrecision(12),
+    ).toExponential();
+  }
+  document.getElementById("display").value = parseFloat(
+    value.toPrecision(12),
+  ).toString();
+}
 
+function resetCalculator() {
+  display(0);
+  firstNumber = "";
+  firstNumber = "";
+  secondNumber = "";
+  currentOperator = "";
+}
+
+// Digit buttons click
 const btnDigits = document.querySelectorAll("#digit");
 
 btnDigits.forEach((btn) => {
@@ -45,26 +64,18 @@ btnDigits.forEach((btn) => {
     if (currentOperator.length === 0 && secondNumber.length === 0) {
       firstNumber += event.target.innerText;
       console.log(`firstNumber is now ${firstNumber}`); // DEBUG
-      document.getElementById("display").value = Math.abs(
-        parseInt(firstNumber),
-      );
-      console.log(`Set input display to firstNumber: ${parseInt(firstNumber)}`);
+      display(firstNumber);
+      console.log(`Display firstNumber: ${parseInt(firstNumber)}`); // DEBUG
     } else if (firstNumber.length > 0 && currentOperator.length > 0) {
       secondNumber += event.target.innerText;
       console.log(`secondNumber is now ${secondNumber}`); // DEBUG
-      document.getElementById("display").value = secondNumber;
-      console.log(
-        `Set input display to secondNumber: ${parseInt(secondNumber)}`,
-      ); // DEBUG
+      display(secondNumber);
+      console.log(`Display secondNumber: ${parseInt(secondNumber)}`); // DEBUG
     }
   });
 });
 
-function enterValue(value) {
-  firstNumber += value;
-  document.getElementById("display").value = firstNumber;
-}
-
+// Operator buttons click
 const btnOperators = document.querySelectorAll("#operator");
 
 btnOperators.forEach((btn) => {
@@ -84,17 +95,20 @@ btnOperators.forEach((btn) => {
       firstNumber = event.target.innerText;
       console.log(`Change firstNumber to ${firstNumber}`); // DEBUG
     } else if (firstNumber.length > 0 && secondNumber.length > 0) {
-      tempOperator = currentOperator;
+      // Create a copy of currentOperator
+      let tempOperator = currentOperator;
       console.log(`Stored currentOperator in tempOperator: ${tempOperator}`); // DEBUG
       currentOperator = event.target.innerText;
-      console.log(`currentOperator: ${currentOperator}`);
-      a = parseInt(firstNumber);
-      b = parseInt(secondNumber);
-      result = operate(tempOperator, a, b);
+      console.log(`currentOperator: ${currentOperator}`); // DEBUG
+      // Convert strings to numbers
+      a = parseFloat(firstNumber);
+      b = parseFloat(secondNumber);
+      // Calculate result
+      let result = operate(tempOperator, a, b);
       console.log(`Calculated result: ${result}`); //DEBUG
-      document.getElementById("display").value = result;
+      display(result);
       console.log(`Set input display to result: ${result}`); // DEBUG
-
+      // Set firstNumber to result
       firstNumber = result.toString();
       console.log(`Set firstNumber = result = ${firstNumber}`); //DEBUG
       secondNumber = "";
@@ -114,12 +128,17 @@ btnOperators.forEach((btn) => {
 });
 
 const btnClear = document.querySelector("#clear");
-btnClear.addEventListener("click", () => {
-  document.getElementById("display").value = "0";
-  firstNumber = "";
-  secondNumber = "";
-  currentOperator = "";
-  result = "";
+btnClear.addEventListener("click", (event) => {
+  resetCalculator();
 });
 
-function calculate() {}
+const btnEquals = document.querySelector("#equals");
+btnEquals.addEventListener("click", () => {
+  if (firstNumber.length > 0 && secondNumber.length > 0) {
+    a = parseFloat(firstNumber);
+    b = parseFloat(secondNumber);
+    firstNumber = operate(currentOperator, a, b).toString();
+    console.log(`firstNumber = ${firstNumber}`); // DEBUG
+    display(firstNumber);
+  }
+});
