@@ -15,7 +15,10 @@ function resetOpBtnStyle() {
   });
 }
 
-function calculate(operator, a, b) {
+function calculate(operator, val1, val2) {
+  let a = parseFloat(val1);
+  let b = parseFloat(val2);
+
   switch (operator) {
     case "+":
       return a + b;
@@ -39,6 +42,10 @@ function setOpBtnStyle(button) {
 
 function display(value) {
   if (value === "") {
+    if (firstNumber.length > 0 && parseFloat(firstNumber) > 0) {
+      document.getElementById("display").value = firstNumber;
+      return;
+    }
     document.getElementById("display").value = "0";
     return;
   }
@@ -74,7 +81,7 @@ function resetCalculator() {
 
 // Digit buttons click
 
-function handleDigits(event) {
+function handleClickDigits(event) {
   if (currentOperator.length === 0 && secondNumber.length === 0) {
     resetOpBtnStyle();
     firstNumber += event.target.innerText;
@@ -86,13 +93,68 @@ function handleDigits(event) {
   }
 }
 
+function handleKbDigits(key) {
+  if (currentOperator.length === 0 && secondNumber.length === 0) {
+    resetOpBtnStyle();
+    firstNumber += key;
+    display(firstNumber);
+  } else if (firstNumber.length > 0 && currentOperator.length > 0) {
+    resetOpBtnStyle();
+    secondNumber += key;
+    display(secondNumber);
+  }
+}
+
 btnDigits.forEach((btn) => {
-  btn.addEventListener("click", handleDigits);
+  btn.addEventListener("click", handleClickDigits);
 });
 
 // Operator buttons click
 
-function handleOperator(event) {
+function handleKbOperator(key) {
+  console.log(`Pressed key operator ${key}`); // DEBUG
+  // NO firstNumber
+  if (firstNumber.length === 0) {
+    // If press +/- => firstNumber = +/-
+    if (key === "-" || key === "+") {
+      firstNumber = key;
+      console.log(`Set firstNumber to key "${key}"`); // DEBUG
+      return;
+    }
+    // If press */÷ do nothing
+    else return;
+  }
+  // EXISTS firstNumber
+  if (firstNumber.length > 0) {
+    // If firstNumber contains only a sign
+    if (firstNumber === "+" || firstNumber === "-") {
+      // Just change the sign if +/- were pressed, else return
+      if (key === "-" || key === "+") {
+        firstNumber = key;
+        return;
+      }
+      // If "*" or "/" were pressed, do nothing
+      else return;
+    }
+    // If firstNumber is a number and NO secondNumber, set currentOperator
+    if (secondNumber.length === 0) {
+      currentOperator = key;
+      return;
+    }
+    // If firstNumber is a number and EXISTS secondNumber
+    if (secondNumber.length > 0) {
+      let tempOperator = currentOperator;
+      currentOperator = key;
+      let result = calculate(tempOperator, firstNumber, secondNumber);
+      display(result);
+      firstNumber = result.toString();
+      secondNumber = "";
+      return;
+    }
+  }
+}
+
+function handleClickOperator(event) {
   button = event.target;
   setOpBtnStyle(button);
   console.log(`Pressed operator ${button.innerText}`); // DEBUG
@@ -128,13 +190,8 @@ function handleOperator(event) {
     if (secondNumber.length > 0) {
       let tempOperator = currentOperator;
       currentOperator = event.target.innerText;
-      // Convert strings to numbers
-      a = parseFloat(firstNumber);
-      b = parseFloat(secondNumber);
-      // Calculate result
-      let result = calculate(tempOperator, a, b);
+      let result = calculate(tempOperator, firstNumber, secondNumber);
       display(result);
-      // Set firstNumber to result
       firstNumber = result.toString();
       secondNumber = "";
       return;
@@ -142,29 +199,19 @@ function handleOperator(event) {
   }
 }
 
-btnOperators.forEach((btn) => {
-  btn.addEventListener("click", handleOperator);
-});
-
-const btn1 = document.querySelector(".numpad1");
-
-btn1.addEventListener("keydown", (event) => {
-  if (event.key === "1") console.log("1");
-});
-
-btnClear.addEventListener("click", (event) => {
-  resetCalculator();
-});
-
-btnEquals.addEventListener("click", () => {
-  if (firstNumber.length > 0 && secondNumber.length > 0) {
-    a = parseFloat(firstNumber);
-    b = parseFloat(secondNumber);
-    firstNumber = calculate(currentOperator, a, b).toString();
-    console.log(`firstNumber = ${firstNumber}`); // DEBUG
-    display(firstNumber);
+function handleDelete() {
+  if (currentOperator.length === 0 && firstNumber.length > 0) {
+    if (firstNumber !== "0") {
+      firstNumber = firstNumber.substring(0, firstNumber.length - 1);
+      display(firstNumber);
+    }
+  } else if (secondNumber.length > 0) {
+    if (secondNumber !== "0") {
+      secondNumber = secondNumber.substring(0, secondNumber.length - 1);
+      display(secondNumber);
+    }
   }
-});
+}
 
 function handleDecimalPoint() {
   if (currentOperator.length === 0) {
@@ -186,22 +233,50 @@ function handleDecimalPoint() {
   }
 }
 
+function handleEquals() {
+  if (firstNumber.length > 0 && secondNumber.length > 0) {
+    firstNumber = calculate(
+      currentOperator,
+      firstNumber,
+      secondNumber,
+    ).toString();
+    console.log(`firstNumber = ${firstNumber}`); // DEBUG
+    display(firstNumber);
+  }
+}
+
+btnOperators.forEach((btn) => {
+  btn.addEventListener("click", handleClickOperator);
+});
+
+document.addEventListener("keydown", (event) => {
+  const keyName = event.key;
+  console.log(`${keyName}`);
+
+  if (keyName === "+") handleKbOperator("+");
+  if (keyName === "-") handleKbOperator("-");
+  if (keyName === "*") handleKbOperator("*");
+  if (keyName === "/") handleKbOperator("÷");
+  if (keyName === ".") handleDecimalPoint();
+  if (keyName === "Enter" || keyName === "=") handleEquals();
+  if (keyName === "Backspace" || keyName === "Delete") handleDelete();
+
+  if (keyName >= 0 || keyName <= 9) {
+    console.log(`Pressed numpad: ${keyName}`);
+    handleKbDigits(keyName);
+    // keyName = 1
+    // event.target.innerText = 1
+  }
+});
+
+btnClear.addEventListener("click", (event) => {
+  resetCalculator();
+});
+
+btnEquals.addEventListener("click", handleEquals);
+
 btnPoint.addEventListener("click", handleDecimalPoint);
 
 const btnDelete = document.querySelector("#delete");
-
-function handleDelete() {
-  if (currentOperator.length === 0 && firstNumber.length > 0) {
-    if (firstNumber !== "0") {
-      firstNumber = firstNumber.substring(0, firstNumber.length - 1);
-      display(firstNumber);
-    }
-  } else if (secondNumber.length > 0) {
-    if (secondNumber !== "0") {
-      secondNumber = secondNumber.substring(0, secondNumber.length - 1);
-      display(secondNumber);
-    }
-  }
-}
 
 btnDelete.addEventListener("click", handleDelete);
