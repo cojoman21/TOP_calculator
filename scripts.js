@@ -16,7 +16,8 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
-  return a / b;
+  if (b === 0) return "Division by zero";
+  else return a / b;
   //   return a / b;
 }
 
@@ -36,11 +37,15 @@ function operate(operator, a, b) {
 }
 
 function display(value) {
+  if (value === "Division by zero") {
+    document.getElementById("display").value = value;
+    return;
+  }
   value = parseFloat(value);
   if (Math.abs(value) >= 1e12 || (Math.abs(value) < 1e-7 && value !== 0)) {
-    document.getElementById("display").value = parseFloat(
-      value.toPrecision(12),
-    ).toExponential();
+    document.getElementById("display").value = parseFloat(value.toPrecision(12))
+      .toExponential()
+      .toString();
   }
   document.getElementById("display").value = parseFloat(
     value.toPrecision(12),
