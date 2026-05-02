@@ -166,3 +166,19 @@ btnPoint.addEventListener("click", () => {
     }
   }
 });
+
+const btnDelete = document.querySelector("#delete");
+
+btnDelete.addEventListener("click", () => {
+  if (currentOperator.length === 0) {
+    if (firstNumber !== "0") {
+      firstNumber = firstNumber.substring(0, firstNumber.length - 1);
+      display(firstNumber);
+    }
+  } else {
+    if (secondNumber !== "0") {
+      secondNumber = secondNumber.substring(0, secondNumber.length - 1);
+      display(secondNumber);
+    }
+  }
+});
