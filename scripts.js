@@ -253,7 +253,8 @@ document.addEventListener("keydown", (event) => {
   if (keyName === "/") handleKbOperator("÷");
   if (keyName === ".") handleDecimalPoint();
   if (keyName === "Enter" || keyName === "=") handleEquals();
-  if (keyName === "Backspace" || keyName === "Delete") handleDelete();
+  if (keyName === "Backspace") handleDelete();
+  if (keyName === "Delete") resetCalculator();
 
   if (keyName >= 0 || keyName <= 9) {
     handleKbDigits(keyName);
