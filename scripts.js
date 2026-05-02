@@ -38,6 +38,10 @@ function setOpBtnStyle(button) {
 }
 
 function display(value) {
+  if (value === "") {
+    document.getElementById("display").value = "0";
+    return;
+  }
   if (value === "Division by zero") {
     document.getElementById("display").value = value;
     return;
@@ -158,10 +162,16 @@ btnPoint.addEventListener("click", () => {
     if (!firstNumber.includes(".")) {
       firstNumber += ".";
       display(firstNumber);
+    } else if (firstNumber.endsWith(".")) {
+      firstNumber = firstNumber.substring(0, firstNumber.length - 1);
+      display(firstNumber);
     }
   } else {
     if (!secondNumber.includes(".")) {
       secondNumber += ".";
+      display(secondNumber);
+    } else if (secondNumber.endsWith(".")) {
+      secondNumber = secondNumber.substring(0, secondNumber.length - 1);
       display(secondNumber);
     }
   }
@@ -170,12 +180,12 @@ btnPoint.addEventListener("click", () => {
 const btnDelete = document.querySelector("#delete");
 
 btnDelete.addEventListener("click", () => {
-  if (currentOperator.length === 0) {
+  if (currentOperator.length === 0 && firstNumber.length > 0) {
     if (firstNumber !== "0") {
       firstNumber = firstNumber.substring(0, firstNumber.length - 1);
       display(firstNumber);
     }
-  } else {
+  } else if (secondNumber.length > 0) {
     if (secondNumber !== "0") {
       secondNumber = secondNumber.substring(0, secondNumber.length - 1);
       display(secondNumber);
