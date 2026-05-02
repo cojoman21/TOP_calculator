@@ -1,39 +1,40 @@
+const btnDigits = document.querySelectorAll("#digit");
+const btnOperators = document.querySelectorAll("#operator");
+const btnClear = document.querySelector("#clear");
+const btnEquals = document.querySelector("#equals");
+const btnPoint = document.querySelector("#point");
+
 let firstNumber = "";
 let secondNumber = "";
 let currentOperator = "";
 resetCalculator();
 
-function add(a, b) {
-  return a + b;
+function resetOpBtnStyle() {
+  btnOperators.forEach((btn) => {
+    btn.style.backgroundColor = "";
+  });
 }
 
-function subtract(a, b) {
-  return a - b;
-}
-
-function multiply(a, b) {
-  return a * b;
-}
-
-function divide(a, b) {
-  if (b === 0) return "Division by zero";
-  else return a / b;
-  //   return a / b;
-}
-
-function operate(operator, a, b) {
+function calculate(operator, a, b) {
   switch (operator) {
     case "+":
-      return add(a, b);
+      return a + b;
     case "-":
-      return subtract(a, b);
+      return a - b;
     case "*":
-      return multiply(a, b);
+      return a * b;
     case "÷":
-      return divide(a, b);
+      if (b === 0) return "Division by zero";
+      return a / b;
     default:
       return;
   }
+}
+
+function setOpBtnStyle(button) {
+  resetOpBtnStyle();
+  button.style.backgroundColor = "#ffaf79";
+  console.log(`Setting ${button.innerText} to currentOp style.`);
 }
 
 function display(value) {
@@ -41,15 +42,22 @@ function display(value) {
     document.getElementById("display").value = value;
     return;
   }
-  value = parseFloat(value);
-  if (Math.abs(value) >= 1e12 || (Math.abs(value) < 1e-7 && value !== 0)) {
-    document.getElementById("display").value = parseFloat(value.toPrecision(12))
-      .toExponential()
-      .toString();
+  // Keep trailing point if present
+  const raw = value.toString();
+  if (raw.endsWith(".") || raw.match(/\.\d*0$/)) {
+    document.getElementById("display").value = raw;
+    return;
   }
-  document.getElementById("display").value = parseFloat(
-    value.toPrecision(12),
-  ).toString();
+  value = parseFloat(value);
+  let displayed;
+  if (Math.abs(value) >= 1e12 || (Math.abs(value) < 1e-7 && value !== 0)) {
+    displayed = parseFloat(value.toPrecision(12)).toExponential().toString();
+  } else {
+    displayed = new Intl.NumberFormat("en-US", {
+      maximumSignificantDigits: 12,
+    }).format(value);
+  }
+  document.getElementById("display").value = displayed;
 }
 
 function resetCalculator() {
@@ -58,92 +66,103 @@ function resetCalculator() {
   firstNumber = "";
   secondNumber = "";
   currentOperator = "";
+  resetOpBtnStyle();
 }
 
 // Digit buttons click
-const btnDigits = document.querySelectorAll("#digit");
 
 btnDigits.forEach((btn) => {
   btn.addEventListener("click", (event) => {
-    console.log(`Pressed digit ${event.target.innerText}`); // DEBUG
     if (currentOperator.length === 0 && secondNumber.length === 0) {
+      resetOpBtnStyle();
       firstNumber += event.target.innerText;
-      console.log(`firstNumber is now ${firstNumber}`); // DEBUG
       display(firstNumber);
-      console.log(`Display firstNumber: ${parseInt(firstNumber)}`); // DEBUG
     } else if (firstNumber.length > 0 && currentOperator.length > 0) {
+      resetOpBtnStyle();
       secondNumber += event.target.innerText;
-      console.log(`secondNumber is now ${secondNumber}`); // DEBUG
       display(secondNumber);
-      console.log(`Display secondNumber: ${parseInt(secondNumber)}`); // DEBUG
     }
   });
 });
 
 // Operator buttons click
-const btnOperators = document.querySelectorAll("#operator");
 
 btnOperators.forEach((btn) => {
   btn.addEventListener("click", (event) => {
-    console.log(`Pressed operator ${event.target.innerText}`); // DEBUG
-    if (
-      firstNumber.length === 0 &&
-      (event.target.innerText === "-" || event.target.innerText === "+")
-    ) {
-      firstNumber = event.target.innerText;
-      console.log(`Set firstNumber to ${firstNumber}`); // DEBUG
-    } else if (
-      firstNumber.length > 0 &&
-      (firstNumber === "+" || firstNumber === "-") &&
-      (event.target.innerText === "-" || event.target.innerText === "+")
-    ) {
-      firstNumber = event.target.innerText;
-      console.log(`Change firstNumber to ${firstNumber}`); // DEBUG
-    } else if (firstNumber.length > 0 && secondNumber.length > 0) {
-      // Create a copy of currentOperator
-      let tempOperator = currentOperator;
-      console.log(`Stored currentOperator in tempOperator: ${tempOperator}`); // DEBUG
-      currentOperator = event.target.innerText;
-      console.log(`currentOperator: ${currentOperator}`); // DEBUG
-      // Convert strings to numbers
-      a = parseFloat(firstNumber);
-      b = parseFloat(secondNumber);
-      // Calculate result
-      let result = operate(tempOperator, a, b);
-      console.log(`Calculated result: ${result}`); //DEBUG
-      display(result);
-      console.log(`Set input display to result: ${result}`); // DEBUG
-      // Set firstNumber to result
-      firstNumber = result.toString();
-      console.log(`Set firstNumber = result = ${firstNumber}`); //DEBUG
-      secondNumber = "";
-      console.log(`Reset secondNumber: ${secondNumber}`); //DEBUG
-    } else if (
-      firstNumber.length > 0 &&
-      !firstNumber.startsWith("+") &&
-      !firstNumber.startsWith("-")
-    ) {
-      currentOperator = event.target.innerText;
-      console.log(`Set currentOperator to ${currentOperator}`); // DEBUG
-    } else {
-      currentOperator = event.target.innerText;
-      console.log(`Set currentOperator to ${currentOperator}`); // DEBUG
+    button = event.target;
+    setOpBtnStyle(button);
+    console.log(`Pressed operator ${button.innerText}`); // DEBUG
+    // NO firstNumber
+    if (firstNumber.length === 0) {
+      // If press +/- => firstNumber = +/-
+      if (button.innerText === "-" || button.innerText === "+") {
+        firstNumber = button.innerText;
+        console.log(`Set firstNumber to "${button.innerText}"`); // DEBUG
+        return;
+      }
+      // If press */÷ do nothing
+      else return;
+    }
+    // EXISTS firstNumber
+    if (firstNumber.length > 0) {
+      // If firstNumber contains only a sign
+      if (firstNumber === "+" || firstNumber === "-") {
+        // Just change the sign if +/- were pressed, else return
+        if (button.innerText === "-" || button.innerText === "+") {
+          firstNumber = button.innerText;
+          return;
+        }
+        // If "*" or "/" were pressed, do nothing
+        else return;
+      }
+      // If firstNumber is a number and NO secondNumber, set currentOperator
+      if (secondNumber.length === 0) {
+        currentOperator = event.target.innerText;
+        return;
+      }
+      // If firstNumber is a number and EXISTS secondNumber
+      if (secondNumber.length > 0) {
+        let tempOperator = currentOperator;
+        currentOperator = event.target.innerText;
+        // Convert strings to numbers
+        a = parseFloat(firstNumber);
+        b = parseFloat(secondNumber);
+        // Calculate result
+        let result = calculate(tempOperator, a, b);
+        display(result);
+        // Set firstNumber to result
+        firstNumber = result.toString();
+        secondNumber = "";
+        return;
+      }
     }
   });
 });
 
-const btnClear = document.querySelector("#clear");
 btnClear.addEventListener("click", (event) => {
   resetCalculator();
 });
 
-const btnEquals = document.querySelector("#equals");
 btnEquals.addEventListener("click", () => {
   if (firstNumber.length > 0 && secondNumber.length > 0) {
     a = parseFloat(firstNumber);
     b = parseFloat(secondNumber);
-    firstNumber = operate(currentOperator, a, b).toString();
+    firstNumber = calculate(currentOperator, a, b).toString();
     console.log(`firstNumber = ${firstNumber}`); // DEBUG
     display(firstNumber);
+  }
+});
+
+btnPoint.addEventListener("click", () => {
+  if (currentOperator.length === 0) {
+    if (!firstNumber.includes(".")) {
+      firstNumber += ".";
+      display(firstNumber);
+    }
+  } else {
+    if (!secondNumber.includes(".")) {
+      secondNumber += ".";
+      display(secondNumber);
+    }
   }
 });
