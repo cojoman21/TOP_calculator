@@ -112,13 +112,11 @@ btnDigits.forEach((btn) => {
 // Operator buttons click
 
 function handleKbOperator(key) {
-  console.log(`Pressed key operator ${key}`); // DEBUG
   // NO firstNumber
   if (firstNumber.length === 0) {
     // If press +/- => firstNumber = +/-
     if (key === "-" || key === "+") {
       firstNumber = key;
-      console.log(`Set firstNumber to key "${key}"`); // DEBUG
       return;
     }
     // If press */÷ do nothing
@@ -157,13 +155,11 @@ function handleKbOperator(key) {
 function handleClickOperator(event) {
   button = event.target;
   setOpBtnStyle(button);
-  console.log(`Pressed operator ${button.innerText}`); // DEBUG
   // NO firstNumber
   if (firstNumber.length === 0) {
     // If press +/- => firstNumber = +/-
     if (button.innerText === "-" || button.innerText === "+") {
       firstNumber = button.innerText;
-      console.log(`Set firstNumber to "${button.innerText}"`); // DEBUG
       return;
     }
     // If press */÷ do nothing
@@ -240,7 +236,6 @@ function handleEquals() {
       firstNumber,
       secondNumber,
     ).toString();
-    console.log(`firstNumber = ${firstNumber}`); // DEBUG
     display(firstNumber);
   }
 }
@@ -251,7 +246,6 @@ btnOperators.forEach((btn) => {
 
 document.addEventListener("keydown", (event) => {
   const keyName = event.key;
-  console.log(`${keyName}`);
 
   if (keyName === "+") handleKbOperator("+");
   if (keyName === "-") handleKbOperator("-");
@@ -262,10 +256,7 @@ document.addEventListener("keydown", (event) => {
   if (keyName === "Backspace" || keyName === "Delete") handleDelete();
 
   if (keyName >= 0 || keyName <= 9) {
-    console.log(`Pressed numpad: ${keyName}`);
     handleKbDigits(keyName);
-    // keyName = 1
-    // event.target.innerText = 1
   }
 });
 
